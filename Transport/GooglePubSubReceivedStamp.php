@@ -14,19 +14,26 @@ namespace Symfony\Component\Messenger\Bridge\GooglePubSub\Transport;
 use Symfony\Component\Messenger\Stamp\NonSendableStampInterface;
 
 /**
- * @author Jérémy Derussé <jeremy@derusse.com>
+ * @author Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  */
-class AmazonSqsReceivedStamp implements NonSendableStampInterface
+class GooglePubSubReceivedStamp implements NonSendableStampInterface
 {
     private $id;
+    private $ackId;
 
-    public function __construct(string $id)
+    public function __construct(string $id, string $ackId)
     {
         $this->id = $id;
+        $this->ackId = $ackId;
     }
 
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getAckId(): string
+    {
+        return $this->ackId;
     }
 }

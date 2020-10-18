@@ -11,20 +11,17 @@
 
 namespace Symfony\Component\Messenger\Bridge\GooglePubSub\Transport;
 
-use AsyncAws\Core\Exception\Http\HttpException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
-use Symfony\Component\Messenger\Transport\SetupableTransportInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @author Jérémy Derussé <jeremy@derusse.com>
+ * @author Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  */
-class AmazonSqsTransport implements TransportInterface, SetupableTransportInterface, MessageCountAwareInterface, ResetInterface
+class GooglePubSubTransport implements TransportInterface, MessageCountAwareInterface
 {
     private $serializer;
     private $connection;
@@ -77,34 +74,21 @@ class AmazonSqsTransport implements TransportInterface, SetupableTransportInterf
         return ($this->sender ?? $this->getSender())->send($envelope);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setup(): void
+    private function getReceiver(): GooglePubSubReceiver
     {
-        try {
-            $this->connection->setup();
-        } catch (HttpException $e) {
-            throw new TransportException($e->getMessage(), 0, $e);
+        if (null === $subscription = $this->connection->setupSubscription()) {
+            throw new TransportException('Receiving messages is not supported or auto-setup is disabled');
         }
+
+        return $this->receiver = new GooglePubSubReceiver($subscription, $this->serializer);
     }
 
-    public function reset()
+    private function getSender(): GooglePubSubSender
     {
-        try {
-            $this->connection->reset();
-        } catch (HttpException $e) {
-            throw new TransportException($e->getMessage(), 0, $e);
+        if (null === $topic = $this->connection->setupTopic()) {
+            throw new TransportException('Sending messages is not supported or auto-setup is disabled');
         }
-    }
 
-    private function getReceiver(): AmazonSqsReceiver
-    {
-        return $this->receiver = new AmazonSqsReceiver($this->connection, $this->serializer);
-    }
-
-    private function getSender(): AmazonSqsSender
-    {
-        return $this->sender = new AmazonSqsSender($this->connection, $this->serializer);
+        return $this->sender = new GooglePubSubSender($topic, $this->serializer);
     }
 }
