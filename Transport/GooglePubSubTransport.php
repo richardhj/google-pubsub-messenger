@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 /**
  * @author Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  */
-class GooglePubSubTransport implements TransportInterface, MessageCountAwareInterface
+class GooglePubSubTransport implements TransportInterface
 {
     private $serializer;
     private $connection;
@@ -56,14 +56,6 @@ class GooglePubSubTransport implements TransportInterface, MessageCountAwareInte
     public function reject(Envelope $envelope): void
     {
         ($this->receiver ?? $this->getReceiver())->reject($envelope);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMessageCount(): int
-    {
-        return ($this->receiver ?? $this->getReceiver())->getMessageCount();
     }
 
     /**
