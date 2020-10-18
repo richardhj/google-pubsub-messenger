@@ -68,7 +68,7 @@ class GooglePubSubReceiver implements ReceiverInterface
      */
     public function ack(Envelope $envelope): void
     {
-        $stamp = $this->findAckIdStamp($envelope);
+        $stamp = $this->findReceivedStamp($envelope);
 
         $this->subscription->acknowledge(new Message([], ['ackId' => $stamp->getAckId()]));
     }
@@ -81,13 +81,13 @@ class GooglePubSubReceiver implements ReceiverInterface
         $this->ack($envelope);
     }
 
-    private function findAckIdStamp(Envelope $envelope): GooglePubSubReceivedStamp
+    private function findReceivedStamp(Envelope $envelope): GooglePubSubReceivedStamp
     {
         /** @var GooglePubSubReceivedStamp|null $stamp */
         $stamp = $envelope->last(GooglePubSubReceivedStamp::class);
 
         if (null === $stamp) {
-            throw new LogicException('No GooglePubSubAckIdStamp found on the Envelope.');
+            throw new LogicException('No GooglePubSubReceivedStamp found on the Envelope.');
         }
 
         return $stamp;

@@ -16,10 +16,11 @@ use Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Fixtures\DummyMessage;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\AmazonSqsFifoStamp;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\AmazonSqsSender;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\Connection;
+use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\GooglePubSubSender;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
-class AmazonSqsSenderTest extends TestCase
+class GooglePubSubSenderTest extends TestCase
 {
     public function testSend(): void
     {
@@ -34,27 +35,7 @@ class AmazonSqsSenderTest extends TestCase
         $serializer = $this->getMockBuilder(SerializerInterface::class)->getMock();
         $serializer->method('encode')->with($envelope)->willReturnOnConsecutiveCalls($encoded);
 
-        $sender = new AmazonSqsSender($connection, $serializer);
-        $sender->send($envelope);
-    }
-
-    public function testSendWithAmazonSqsFifoStamp(): void
-    {
-        $envelope = (new Envelope(new DummyMessage('Oy')))
-            ->with($stamp = new AmazonSqsFifoStamp('testGroup', 'testDeduplicationId'));
-
-        $encoded = ['body' => '...', 'headers' => ['type' => DummyMessage::class]];
-
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $connection->expects($this->once())->method('send')
-            ->with($encoded['body'], $encoded['headers'], 0, $stamp->getMessageGroupId(), $stamp->getMessageDeduplicationId());
-
-        $serializer = $this->getMockBuilder(SerializerInterface::class)->getMock();
-        $serializer->method('encode')->with($envelope)->willReturnOnConsecutiveCalls($encoded);
-
-        $sender = new AmazonSqsSender($connection, $serializer);
+        $sender = new GooglePubSubSender($connection, $serializer);
         $sender->send($envelope);
     }
 }

@@ -13,15 +13,15 @@ namespace Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Transport;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\AmazonSqsTransportFactory;
+use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\GooglePubSubTransportFactory;
 
-class AmazonSqsTransportFactoryTest extends TestCase
+class GooglePubSubTransportFactoryTest extends TestCase
 {
     public function testSupportsOnlySqsTransports()
     {
-        $factory = new AmazonSqsTransportFactory();
+        $factory = new GooglePubSubTransportFactory();
 
-        $this->assertTrue($factory->supports('sqs://localhost', []));
-        $this->assertTrue($factory->supports('https://sqs.us-east-2.amazonaws.com/123456789012/ab1-MyQueue-A2BCDEF3GHI4', []));
+        $this->assertTrue($factory->supports('gps://localhost', []));
         $this->assertFalse($factory->supports('redis://localhost', []));
         $this->assertFalse($factory->supports('invalid-dsn', []));
     }

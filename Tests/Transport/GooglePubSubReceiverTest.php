@@ -13,8 +13,8 @@ namespace Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Transport;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Fixtures\DummyMessage;
-use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\AmazonSqsReceiver;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\Connection;
+use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\GooglePubSubReceiver;
 use Symfony\Component\Messenger\Exception\MessageDecodingFailedException;
 use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
 use Symfony\Component\Messenger\Transport\Serialization\Serializer;
@@ -22,7 +22,7 @@ use Symfony\Component\Serializer as SerializerComponent;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class AmazonSqsReceiverTest extends TestCase
+class GooglePubSubReceiverTest extends TestCase
 {
     public function testItReturnsTheDecodedMessageToTheHandler()
     {
@@ -32,7 +32,7 @@ class AmazonSqsReceiverTest extends TestCase
         $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $connection->method('get')->willReturn($sqsEnvelop);
 
-        $receiver = new AmazonSqsReceiver($connection, $serializer);
+        $receiver = new GooglePubSubReceiver($connection, $serializer);
         $actualEnvelopes = iterator_to_array($receiver->get());
         $this->assertCount(1, $actualEnvelopes);
         $this->assertEquals(new DummyMessage('Hi'), $actualEnvelopes[0]->getMessage());
@@ -50,7 +50,7 @@ class AmazonSqsReceiverTest extends TestCase
         $connection->method('get')->willReturn($sqsEnvelop);
         $connection->expects($this->once())->method('delete');
 
-        $receiver = new AmazonSqsReceiver($connection, $serializer);
+        $receiver = new GooglePubSubReceiver($connection, $serializer);
         iterator_to_array($receiver->get());
     }
 

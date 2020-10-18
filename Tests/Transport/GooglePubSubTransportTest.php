@@ -13,14 +13,14 @@ namespace Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Transport;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Fixtures\DummyMessage;
-use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\AmazonSqsTransport;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\Connection;
+use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\GooglePubSubTransport;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 
-class AmazonSqsTransportTest extends TestCase
+class GooglePubSubTransportTest extends TestCase
 {
     public function testItIsATransport()
     {
@@ -38,24 +38,18 @@ class AmazonSqsTransportTest extends TestCase
 
         $decodedMessage = new DummyMessage('Decoded.');
 
-        $sqsEnvelope = [
+        $gpsEnvelope = [
             'id' => '5',
+            'ackId' => '5',
             'body' => 'body',
             'headers' => ['my' => 'header'],
         ];
 
         $serializer->method('decode')->with(['body' => 'body', 'headers' => ['my' => 'header']])->willReturn(new Envelope($decodedMessage));
-        $connection->method('get')->willReturn($sqsEnvelope);
+        $connection->method('get')->willReturn($gpsEnvelope);
 
         $envelopes = iterator_to_array($transport->get());
         $this->assertSame($decodedMessage, $envelopes[0]->getMessage());
-    }
-
-    public function testTransportIsAMessageCountAware()
-    {
-        $transport = $this->getTransport();
-
-        $this->assertInstanceOf(MessageCountAwareInterface::class, $transport);
     }
 
     private function getTransport(SerializerInterface $serializer = null, Connection $connection = null)
@@ -63,6 +57,6 @@ class AmazonSqsTransportTest extends TestCase
         $serializer = $serializer ?: $this->getMockBuilder(SerializerInterface::class)->getMock();
         $connection = $connection ?: $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
 
-        return new AmazonSqsTransport($connection, $serializer);
+        return new GooglePubSubTransport($connection, $serializer);
     }
 }

@@ -12,6 +12,7 @@
 namespace Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Transport;
 
 use AsyncAws\Sqs\SqsClient;
+use Google\Cloud\PubSub\PubSubClient;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Tests\Fixtures\DummyMessage;
 use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\Connection;
@@ -19,31 +20,20 @@ use Symfony\Component\Messenger\Bridge\GooglePubSub\Transport\Connection;
 /**
  * @group integration
  */
-class AmazonSqsIntegrationTest extends TestCase
+class GooglePubSubIntegrationTest extends TestCase
 {
-    public function testConnectionSendToFifoQueueAndGet(): void
-    {
-        if (!getenv('MESSENGER_SQS_FIFO_QUEUE_DSN')) {
-            $this->markTestSkipped('The "MESSENGER_SQS_FIFO_QUEUE_DSN" environment variable is required.');
-        }
-
-        $this->execute(getenv('MESSENGER_SQS_FIFO_QUEUE_DSN'));
-    }
-
     public function testConnectionSendAndGet(): void
     {
-        if (!getenv('MESSENGER_SQS_DSN')) {
-            $this->markTestSkipped('The "MESSENGER_SQS_DSN" environment variable is required.');
+        if (!getenv('MESSENGER_GPS_DSN')) {
+            $this->markTestSkipped('The "MESSENGER_GPS_DSN" environment variable is required.');
         }
 
-        $this->execute(getenv('MESSENGER_SQS_DSN'));
+        $this->execute(getenv('MESSENGER_GPS_DSN'));
     }
 
     private function execute(string $dsn): void
     {
         $connection = Connection::fromDsn($dsn, []);
-        $connection->setup();
-        $this->clearSqs($dsn);
 
         $connection->send('{"message": "Hi"}', ['type' => DummyMessage::class, DummyMessage::class => 'special']);
         $this->assertSame(1, $connection->getMessageCount());
@@ -55,14 +45,5 @@ class AmazonSqsIntegrationTest extends TestCase
 
         $this->assertEquals('{"message": "Hi"}', $encoded['body']);
         $this->assertEquals(['type' => DummyMessage::class, DummyMessage::class => 'special'], $encoded['headers']);
-    }
-
-    private function clearSqs(string $dsn): void
-    {
-        $url = parse_url($dsn);
-        $client = new SqsClient(['endpoint' => "http://{$url['host']}:{$url['port']}"]);
-        $client->purgeQueue([
-            'QueueUrl' => $client->getQueueUrl(['QueueName' => ltrim($url['path'], '/')])->getQueueUrl(),
-        ]);
     }
 }

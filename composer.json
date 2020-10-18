@@ -1,7 +1,7 @@
 {
     "name": "symfony/google-pubsub-messenger",
     "type": "symfony-bridge",
-    "description": "Symfony Amazon SQS extension Messenger Bridge",
+    "description": "Symfony Google Pub/Sub extension Messenger Bridge",
     "keywords": [],
     "homepage": "https://symfony.com",
     "license": "MIT",

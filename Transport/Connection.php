@@ -32,7 +32,7 @@ class Connection
         'keyFile'        => null,
         'keyFilePath'    => null,
         'requestTimeout' => null,
-        'retries'        => null,
+        'retries'        => 3,
         'scopes'         => null,
         'quotaProject'   => null,
 
