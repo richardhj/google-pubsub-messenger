@@ -68,7 +68,7 @@ class GooglePubSubTransport implements TransportInterface
     private function getReceiver(): GooglePubSubReceiver
     {
         if (null === $subscription = $this->connection->setupSubscription()) {
-            throw new TransportException('Receiving messages is not supported or auto-setup is disabled');
+            throw new TransportException('Receiving messages is not supported or auto-setup is disabled.');
         }
 
         return $this->receiver = new GooglePubSubReceiver($subscription, $this->serializer);
@@ -77,7 +77,7 @@ class GooglePubSubTransport implements TransportInterface
     private function getSender(): GooglePubSubSender
     {
         if (null === $topic = $this->connection->setupTopic()) {
-            throw new TransportException('Sending messages is not supported or auto-setup is disabled');
+            throw new TransportException('Sending messages is not supported or auto-setup is disabled.');
         }
 
         return $this->sender = new GooglePubSubSender($topic, $this->serializer);
